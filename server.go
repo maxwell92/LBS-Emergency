@@ -33,8 +33,8 @@ const (
 
 // why could this run even I didn't called it ?!
 func init() {
-	iris.StaticServe("./template", "/static")
-	//iris.StaticWeb("./template", "/static", 1)
+	//iris.StaticServe("./template", "/static")
+	iris.StaticWeb("/", "./template", 0)
 	color.Cyan(banner)
 }
 
@@ -59,8 +59,8 @@ func SOS(ctx *iris.Context) {
 }
 
 func main() {
-	iris.Get("/test", Test)
-	iris.Get("/hello", Hello)
-	iris.Get("/sos", SOS)
+	//iris.Get("/test", Test)
+	//iris.Get("/hello", Hello)
+	//iris.Get("/sos", SOS)
 	iris.Listen(":10000")
 }
