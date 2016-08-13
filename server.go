@@ -3,6 +3,7 @@ package main
 import (
 	//"fmt"
 	color "github.com/iris-contrib/color"
+	"github.com/iris-contrib/template/html"
 	iris "github.com/kataras/iris"
 	//ia "irisapi"
 	hc "httpclient"
@@ -31,10 +32,17 @@ const (
 	`
 )
 
+type page struct {
+	Title string
+}
+
 // why could this run even I didn't called it ?!
-func init() {
+// if I named the function init()
+func Init() {
 	//iris.StaticServe("./template", "/static")
-	iris.StaticWeb("/", "./template", 0)
+	//iris.StaticWeb("/", "./template", 0)
+
+	iris.UseTemplate(html.New()).Directory("./template", ".html")
 	color.Cyan(banner)
 }
 
@@ -47,7 +55,7 @@ func Test(ctx *iris.Context) {
 	ctx.Write(string(response))
 }
 
-func Hello(ctx *iris.Context) {
+func About(ctx *iris.Context) {
 	ctx.Write(logo)
 	ctx.Write("This is LBS-Emergency")
 	ctx.Write("You can use this to report a Emergency very fast")
@@ -59,8 +67,13 @@ func SOS(ctx *iris.Context) {
 }
 
 func main() {
-	//iris.Get("/test", Test)
-	//iris.Get("/hello", Hello)
-	//iris.Get("/sos", SOS)
+	Init()
+	iris.Get("/", func(ctx *iris.Context) {
+		ctx.MustRender("index.html", page{Title: "LBS-Emergency"})
+	})
+
+	iris.Get("/test", Test)
+	iris.Get("/about", About)
+	iris.Get("/sos", SOS)
 	iris.Listen(":10000")
 }
