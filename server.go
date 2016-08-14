@@ -1,7 +1,7 @@
 package main
 
 import (
-	//"fmt"
+	"fmt"
 	color "github.com/iris-contrib/color"
 	"github.com/iris-contrib/template/html"
 	iris "github.com/kataras/iris"
@@ -66,6 +66,11 @@ func SOS(ctx *iris.Context) {
 	ctx.Write("They are on the way!!")
 }
 
+func Zoom(ctx *iris.Context) {
+	ctx.MustRender("zoom.html", page{Title: "LBS-Emergency-Zoom"})
+	fmt.Println("zoom")
+}
+
 func main() {
 	Init()
 	iris.Get("/", func(ctx *iris.Context) {
@@ -75,5 +80,6 @@ func main() {
 	iris.Get("/test", Test)
 	iris.Get("/about", About)
 	iris.Get("/sos", SOS)
+	iris.Get("/zoom", Zoom)
 	iris.Listen(":10000")
 }

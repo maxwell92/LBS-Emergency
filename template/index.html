@@ -12,7 +12,7 @@
 .demo{width:560px; margin:60px auto 10px auto}
 .geo{margin-top:20px;width:100%;height:100;overflow:hidden;}
 .demo p{line-height:32px; font-size:16px}
-.demo p span,#baidu_geo,#google_geo,#static_map,#allmap{font-weight:bold}
+.demo p span,#baidu_geo,#google_geo,#static_map{font-weight:bold}
 </style>
 
 </head>
@@ -39,10 +39,6 @@
 			<p>实时位置：</p>
 			<p id="static_map"></p>
 		</div>
-       <div class="geo">
-            <p>缩放：</p>
-            <p id="allmap"></p>
-        </div>
 	</div>
     <!--<div class="ad_76090"><script src="/js/ad_js/bd_76090.js" type="text/javascript"></script></div><br/>-->
 </div>
@@ -50,7 +46,6 @@
 function getLocation(){
 	if (navigator.geolocation){
 		navigator.geolocation.getCurrentPosition(showPosition,showError);
-		navigator.geolocation.getCurrentPosition(init,showError);
 	}else{
 		alert("浏览器不支持地理定位。");
 	}
@@ -74,7 +69,6 @@ function showPosition(position){
 			if(json.status==0){
 				$("#baidu_geo").html(json.result.formatted_address);
                 $("#static_map").html('<img src="http://api.map.baidu.com/staticimage/v2?ak=5RijeBzVjQ82uPx8gxGGfeNXlfRt7yH6&center='+latlon+'&width=300&height=200&zoom=16&labels='+latlon+'&labelStyles=SOS,1,14,0xffffff,0xff0000,1" />');
-                //$("#allmap").html('<script src="http://api.map.baidu.com/api?v=2.0&ak=5RijeBzVjQ82uPx8gxGGfeNXlfRt7yH6" />');
 			}
 		},
 		error: function (XMLHttpRequest, textStatus, errorThrown) { 
@@ -125,16 +119,6 @@ function showPosition(position){
 	});
     */
 }
-
-function init(position) {
-	var latlon = position.coords.longitude +','+position.coords.latitude;
-    var map = new BMap.Map("allmap");
-    map.centerAndZoom(new BMap.Point(latlon), 14);
-    map.addControl(new BMap.MapTypeControl());
-    map.setCurrentCity("北京")
-    map.enableScrollWheelZoom(true);
-}
-
 function showError(error){
 	switch(error.code) {
 		case error.PERMISSION_DENIED:
@@ -156,6 +140,9 @@ getLocation();
 </script>
 <form action="/sos" method="get"> 
     <input type="submit" value="求助">
+</form>
+<form action="/zoom" method="get"> 
+    <input type="submit" value="详细地图">
 </form>
 <div id="footer">
     <p>Mworks<a href="http://192.168.1.100:10000/hello">Home</a></p>
