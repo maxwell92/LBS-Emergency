@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+<style type="text/css">
+    body, html,#allmap {width: 100%;height: 100%;overflow: hidden;margin:0;font-family:"微软雅黑";}
+</style>
+<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=5RijeBzVjQ82uPx8gxGGfeNXlfRt7yH6"></script>
+<title>地图展示</title>
+</head>
+<body>
+    <div id="zoom">
+    <form action="/" method="get">
+        <input type="submit", value="返回">
+    </form>
+    </div>
+<div id="sos">
+<form action="/sos" method="get">
+    <input type="submit", value="求助">
+</form>
+</div>
+
+<div id="allmap"></div>
+</body>
+</html>
+<script type="text/javascript">
+    //获取定位
+    function getPosition() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(zoomPosition,zoomError);        
+        }else{
+            alert("浏览器不支持地理定位")     
+        }
+    }
+    // 百度地图API功能
+    function zoomPosition(position){
+        //alert(position.coords.latitude)
+        //alert(position.coords.longitude)
+        var map = new BMap.Map("allmap");// 创建Map实例
+        var point = new BMap.Point(position.coords.longitude, position.coords.latitude)
+        var mk = new BMap.Marker(point);
+        var sos = new BMap.Label("SOS", {offset:new BMap.Size(20, -10)});
+        
+        //map.centerAndZoom(new BMap.Point(116.404, 39.915), 11);// 初始化地图,设置中心点坐标和地图级别
+        map.centerAndZoom(point, 17);// 初始化地图,设置中心点坐标和地图级别
+        map.addControl(new BMap.MapTypeControl()); //添加地图类型控件
+        map.setCurrentCity("北京");// 设置地图显示的城市 此项是必须设置的
+        map.addOverlay(mk);
+        map.panTo(point);
+        sos.setStyle({
+                color:"white",
+               backgroundColor:"red" 
+                });
+        mk.setLabel(sos)
+        map.enableScrollWheelZoom(true); //开启鼠标滚轮缩放
+        map.enableDragging();
+    }
+    function zoomError(error){
+    	switch(error.code) {
+		case error.PERMISSION_DENIED:
+			alert("定位失败,用户拒绝请求地理定位");
+			break;
+		case error.POSITION_UNAVAILABLE:
+			alert("定位失败,位置信息是不可用");
+			break;
+		case error.TIMEOUT:
+			alert("定位失败,请求获取用户位置超时");
+			break;
+		case error.UNKNOWN_ERROR:
+			alert("定位失败,定位系统失效");
+			break;
+        }
+    }
+getPosition()
+</script>

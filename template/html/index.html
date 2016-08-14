@@ -1,0 +1,155 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>LBS-Emergency</title>
+<meta name="keywords" content="LBS,Emergency" />
+<script type="text/javascript" src="http://libs.useso.com/js/jquery/1.7.2/jquery.min.js"></script>
+<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=5RijeBzVjQ82uPx8gxGGfeNXlfRt7yH6"></script>
+<!--<link rel="stylesheet" type="text/css" href="../css/main.css" />-->
+<style type="text/css">
+.demo{width:560px; margin:60px auto 10px auto}
+.geo{margin-top:20px;width:100%;height:100;overflow:hidden;}
+.demo p{line-height:32px; font-size:16px}
+.demo p span,#baidu_geo,#google_geo,#static_map{font-weight:bold}
+</style>
+
+</head>
+
+<body>
+	
+<div id="header">
+    <!--<div class="demo_topad"><script src="/js/ad_js/demo_topad.js" type="text/javascript"></script></div>-->
+</div>
+
+<div id="main">
+   <h2 class="top_title"><a href="/about">LBS-Emergency</a></h2>
+	<div class="demo">
+		<p>地理坐标：<span id="latlon"></span></p>
+		<div class="geo">
+			<p>百度地图定位位置：</p>
+			<p id="baidu_geo"></p>
+		</div>
+		<div class="geo">
+			<p>GOOGLE地图定位位置：</p>
+			<p id="google_geo"></p>
+		</div>
+       <div class="geo">
+			<p>实时位置：</p>
+			<p id="static_map"></p>
+		</div>
+	</div>
+    <!--<div class="ad_76090"><script src="/js/ad_js/bd_76090.js" type="text/javascript"></script></div><br/>-->
+</div>
+<script>
+function getLocation(){
+	if (navigator.geolocation){
+		navigator.geolocation.getCurrentPosition(showPosition,showError);
+	}else{
+		alert("浏览器不支持地理定位。");
+	}
+}
+
+function showPosition(position){
+	//$("#latlon").html("纬度:"+position.coords.latitude +'，经度:'+ position.coords.longitude);
+	var latlon = position.coords.longitude +','+position.coords.latitude;
+    var glatlng = position.coords.latitude + ',' + position.coords.longitude;
+	
+	//baidu
+	var url = "http://api.map.baidu.com/geocoder/v2/?ak=5RijeBzVjQ82uPx8gxGGfeNXlfRt7yH6&callback=renderReverse&location="+latlon+"&output=json&pois=0";
+	$.ajax({ 
+		type: "GET", 
+		dataType: "jsonp", 
+		url: url,
+		beforeSend: function(){
+			$("#baidu_geo").html('正在定位...');
+		},
+		success: function (json) { 
+			if(json.status==0){
+				$("#baidu_geo").html(json.result.formatted_address);
+                $("#static_map").html('<img src="http://api.map.baidu.com/staticimage/v2?ak=5RijeBzVjQ82uPx8gxGGfeNXlfRt7yH6&center='+latlon+'&width=300&height=200&zoom=16&labels='+latlon+'&labelStyles=SOS,1,14,0xffffff,0xff0000,1" />');
+			}
+		},
+		error: function (XMLHttpRequest, textStatus, errorThrown) { 
+			$("#baidu_geo").html(latlon+"地址位置获取失败"); 
+		}
+	});
+	
+	//google
+	var url = 'http://maps.google.cn/maps/api/geocode/json?latlng='+glatlng+'&language=CN';
+	$.ajax({ 
+		type: "GET",
+		url: url, 
+		beforeSend: function(){
+			$("#google_geo").html('正在定位...');
+		},
+		success: function (json) { 
+			if(json.status=='OK'){
+				var results = json.results;
+				$.each(results,function(index,array){
+					if(index==0){
+					$("#google_geo").html(array['formatted_address']);
+					}
+				});
+                //$("#static_map").html('<img src="http://api.map.baidu.com/staticimage/v2?ak=5RijeBzVjQ82uPx8gxGGfeNXlfRt7yH6&center='+latlon+'&width=300&height=200&zoom=11" />');
+			}
+		},
+		error: function (XMLHttpRequest, textStatus, errorThrown) { 
+			$("#google_geo").html(latlon+"地址位置获取失败"); 
+		} 
+	});
+
+    // StaticMap
+	/*var url = 'http://api.map.baidu.com/staticimage/v2?ak=5RijeBzVjQ82uPx8gxGGfeNXlfRt7yH6&center='+latlon+'&width=300&height=200&zoom=11';
+	$.ajax({ 
+		type: "GET",
+		url: url, 
+		beforeSend: function(){
+			$("#static_map").html('正在获取...');
+		},
+		success: function () { 
+            $("#static_map").html('http://api.map.baidu.com/staticimage/v2?ak=5RijeBzVjQ82uPx8gxGGfeNXlfRt7yH6&center='+latlon+'&width=300&height=200&zoom=11&labelStyles=SOS&callback=init');
+
+            //$("#static_map").html('<img src="http://api.map.baidu.com/staticimage/v2?ak=5RijeBzVjQ82uPx8gxGGfeNXlfRt7yH6&center=40.04875984,116.43127399&width=300&height=200&zoom=11&labels=40.04875984,116.43127399&labelStyles=SOS" />');
+	    },
+		error: function (XMLHttpRequest, textStatus, errorThrown) { 
+			$("#static_map").html(latlon+"地图加载失败"); 
+		} 
+	});
+    */
+}
+function showError(error){
+	switch(error.code) {
+		case error.PERMISSION_DENIED:
+			alert("定位失败,用户拒绝请求地理定位");
+			break;
+		case error.POSITION_UNAVAILABLE:
+			alert("定位失败,位置信息是不可用");
+			break;
+		case error.TIMEOUT:
+			alert("定位失败,请求获取用户位置超时");
+			break;
+		case error.UNKNOWN_ERROR:
+			alert("定位失败,定位系统失效");
+			break;
+    }
+}
+
+getLocation();
+</script>
+<form action="/sos" method="get"> 
+    <input type="submit" value="求助">
+</form>
+<form action="/zoom" method="get"> 
+    <input type="submit" value="详细地图">
+</form>
+<div id="footer">
+    <p>Mworks<a href="http://192.168.1.100:10000/hello">Home</a></p>
+</div>
+
+<!--<p id="stat"><script type="text/javascript" src="/js/tongji.js"></script></p>-->
+<!--<img src="http://api.map.baidu.com/staticimage/v2?ak=5RijeBzVjQ82uPx8gxGGfeNXlfRt7yH6&width=400&height=200&center=116.487812,40.017524&labels=116.487812,40.017524&zoom=11&labelStyles=SOS,1,14,0xffffff,0xff0000,1" />-->
+
+</body>
+</html>
